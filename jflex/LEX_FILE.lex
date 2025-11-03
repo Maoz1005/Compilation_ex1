@@ -93,15 +93,39 @@ ID				= [a-z]+
 /**************************************************************/
 
 <YYINITIAL> {
-
-"+"					{ return symbol(TokenNames.PLUS);}
-"-"					{ return symbol(TokenNames.MINUS);}
-"PPP"				{ return symbol(TokenNames.TIMES);}
-"/"					{ return symbol(TokenNames.DIVIDE);}
-"("					{ return symbol(TokenNames.LPAREN);}
-")"					{ return symbol(TokenNames.RPAREN);}
-{INTEGER}			{ return symbol(TokenNames.NUMBER, Integer.valueOf(yytext()));}
-{ID}				{ return symbol(TokenNames.ID,     yytext());}
-{WhiteSpace}		{ /* just skip what was found, do nothing */ }
-<<EOF>>				{ return symbol(TokenNames.EOF);}
+	"("                 { return symbol(TokenNames.LPAREN); }              // LPAREN: "("
+	")"                 { return symbol(TokenNames.RPAREN); }              // RPAREN: ")"
+	"["                 { return symbol(TokenNames.LBRACK); }              // LBRACK: "["
+	"]"                 { return symbol(TokenNames.RBRACK); }              // RBRACK: "]"
+	"{"                 { return symbol(TokenNames.LBRACE); }              // LBRACE: "{"
+	"}"                 { return symbol(TokenNames.RBRACE); }              // RBRACE: "}"
+	"+"                 { return symbol(TokenNames.PLUS); }                // PLUS: "+"
+	"-"                 { return symbol(TokenNames.MINUS); }               // MINUS: "-"
+	"*"                 { return symbol(TokenNames.TIMES); }               // TIMES: "*"
+	"/"                 { return symbol(TokenNames.DIVIDE); }              // DIVIDE: "/"
+	","                 { return symbol(TokenNames.COMMA); }               // COMMA: ","
+	"."                 { return symbol(TokenNames.DOT); }                 // DOT: "."
+	";"                 { return symbol(TokenNames.SEMICOLON); }           // SEMICOLON: ";"
+	"int"               { return symbol(TokenNames.TYPE_INT); }            // TYPE_INT: "int"
+	"string"			{ return symbol(TokenNames.TYPE_STRING); }         // TYPE_STRING: "string"
+	"void"              { return symbol(TokenNames.TYPE_VOID); }           // TYPE_VOID: "void"
+	":="                { return symbol(TokenNames.ASSIGN); }              // ASSIGN: ":="
+	"="                 { return symbol(TokenNames.EQ); }                  // EQ: "="
+	"<"                 { return symbol(TokenNames.LT); }                  // LT: "<"
+	">"                 { return symbol(TokenNames.GT); }                  // GT: ">"
+	"array"             { return symbol(TokenNames.ARRAY); }               // ARRAY: "array"
+	"class"             { return symbol(TokenNames.CLASS); }               // CLASS: "class"
+	"return"            { return symbol(TokenNames.RETURN); }              // RETURN: "return"
+	"while"             { return symbol(TokenNames.WHILE); }               // WHILE: "while"
+	"if"                { return symbol(TokenNames.IF); }                  // IF: "if"
+	"new"               { return symbol(TokenNames.NEW); }                 // NEW: "new"
+	"extends"           { return symbol(TokenNames.EXTENDS); }             // EXTENDS: "extends"
+	"nil"               { return symbol(TokenNames.NIL); }                 // NIL: "nil"
+  {LEADING_ZERO}      {return symbol(TokenNames.ERROR); }
+	{INTEGER}			{ return symbol(TokenNames.INT, new Integer(yytext()));}
+	{STRING}			{ return symbol(TokenNames.STRING, new String(yytext()));}
+	{ID}				{ return symbol(TokenNames.ID,     new String(yytext()));}
+	{SKIP}		{ /* just skip what was found, do nothing */ }
+  {ERROR_COMMENT} 		{return symbol(TokenNames.ERROR); }
+	<<EOF>>				{ return symbol(TokenNames.EOF);}
 }
