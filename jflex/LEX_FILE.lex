@@ -82,13 +82,11 @@ BRACKET			= \( | \) | \[ | \] | \{ | \}
 MARK			= \? | \!
 OP				= \+ | \- | \* | \/
 DOT				= \. | \;
-NO_STAR			= [0-9] | {LETTER} | {BRACKET} | {MARK} | {DOT} | {WhiteSpace} | \+ | \- | \/  /* For comments */
-NO_SLASH		= [0-9] | {LETTER} | {BRACKET} | {MARK} | {DOT} | {WhiteSpace} | \+ | \- | \*  /* For comments */
 T1_COMMENT 		= \/\/([a-zA-Z]|[0-9]|\(|\)|\[|\]|\{|\}|\?|\!|\+|\-|\*|\/|\.|\;|[ \t])*{LineTerminator}
-T2_COMMENT		= \/\* ( ({NO_STAR})* (\*{NO_SLASH})* )* (\*)? \*\/ /* NoS: (\*)? in case of single asterisk followed by no chars */
-SKIP  			= {WhiteSpace} | {T1_COMMENT} | {T2_COMMENT}
 T1_ERROR        = \/\/([a-zA-Z]|[0-9]|\(|\)|\[|\]|\{|\}|\?|\!|\+|\-|\*|\/|\.|\;|[ \t])*
-T2_ERROR        = \/\* ( ({NO_STAR})* (\*{NO_SLASH})* )* (\*)?
+T2_COMMENT		= "/*" ( [a-zA-Z0-9\s\t\r\n(){}\[\]?!+\-./;] | \*+[^*/] )* \*+ "/" /* NoS: (\*)? in case of single asterisk followed by no chars */
+T2_ERROR        = "/*" ( [a-zA-Z0-9\s\t\r\n(){}\[\]?!+\-./;] | \*+[^*/] )* (\*+)?
+SKIP  			= {WhiteSpace} | {T1_COMMENT} | {T2_COMMENT}
 COMMENT_ERROR   = {T1_ERROR} | {T2_ERROR}
 
 /******************************/
