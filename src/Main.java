@@ -1,8 +1,7 @@
 import java.io.*;
-import java.io.PrintWriter;
 
 import java_cup.runtime.Symbol;
-   
+
 public class Main
 {
 	final static int MAX_NUMBER = (int)Math.pow(2,15) - 1;  // Maximal int
@@ -99,8 +98,8 @@ public class Main
 		}
 		catch (Error e) {
 			l.yyclose();
-			file_writer.close();
-			overwriteOutputFile(outputFilename);
+			fileWriter.close();
+			overwriteOutputFile(outputFileName);
 			return;
 		}
 		/********************************/
@@ -112,31 +111,36 @@ public class Main
 			/* [6] Print to console */
 			/************************/
 			String tokenType = id_to_name[s.sym];
-			System.out.println(tokenType);
+			System.out.print(tokenType);
+			System.out.print("[");
+			System.out.print(l.getLine());
+			System.out.print(",");
+			System.out.print(l.getTokenStartPosition());
+			System.out.println("]:");
 			if (tokenType.equals("ERROR")){
 				err = true;
 				break;
 			}
-			file_writer.print(tokenType);
+			fileWriter.print(tokenType);
 
 			boolean isNumber = tokenType.equals("INT");
 			boolean isString = tokenType.equals("STRING");
 			boolean isID = tokenType.equals("ID");
 			if (isNumber || isString || isID) {
 				if (isNumber && !numIsValid(s.value)) {
-					fail = true;
+					err = true;
 					break;
 				}
-				file_writer.print("(");
-				file_writer.print(s.value);
-				file_writer.print(")");
+				fileWriter.print("(");
+				fileWriter.print(s.value);
+				fileWriter.print(")");
 			}
-			file_writer.print("[");
-			file_writer.print(l.getLine());
-			file_writer.print(",");
-			file_writer.print(l.getTokenStartPosition());
-			file_writer.print("]");
-			file_writer.print("\n");
+			fileWriter.print("[");
+			fileWriter.print(l.getLine());
+			fileWriter.print(",");
+			fileWriter.print(l.getTokenStartPosition());
+			fileWriter.print("]");
+			fileWriter.print("\n");
 
 			/***********************/
 			/* [7] Read next token */
@@ -146,8 +150,8 @@ public class Main
 			}
 			catch (Error e) {
 				l.yyclose();
-				file_writer.close();
-				overwriteOutputFile(outputFilename);
+				fileWriter.close();
+				overwriteOutputFile(outputFileName);
 				return;
 			}
 		}
@@ -166,7 +170,7 @@ public class Main
 		/* [9] Overwrite in case of an error */
 		/*************************************/
 		if (err)
-			overwriteWithError(outputFilename);
+			overwriteOutputFile(outputFileName);
 		else
 			System.out.println("Successful Lexical Analysis");
 	}
