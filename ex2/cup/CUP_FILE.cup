@@ -115,8 +115,6 @@ non terminal AstDecArraytypedef arrayTypedef;
 non terminal AstNewexp newExp;
 non terminal AstCfield cField;
 
-non terminal AST_BINOP binop;
-
 /************************/
 /* HELPER NON TERMINALS */
 /************************/
