@@ -119,10 +119,10 @@ non terminal AstCfield cField;
 /* HELPER NON TERMINALS */
 /************************/
 non terminal AstStmtList stmtList;
-non terminal NODE_LIST<AstDec> dec_plus;
-non terminal NODE_LIST<AstFuncParam> c_t_id_star;
-non terminal NODE_LIST<AstCfield> cFieldList;
-non terminal NODE_LIST<AstExp> c_exp_star;
+non terminal NodeList<AstDec> dec_plus;
+non terminal NodeList<AstFuncParam> c_t_id_star;
+non terminal NodeList<AstCfield> cFieldList;
+non terminal NodeList<AstExp> c_exp_star;
 
 /***********************/
 /* OPERATOR PRECEDENCE */
@@ -144,8 +144,8 @@ start with program;
 program    ::=      dec_plus:dPlus	{: RESULT = new AstProgram(dPlus); :}
                     ;
 
-dec_plus	::=		dec:d {: RESULT = new NODE_LIST<AstDec>(d, null); :}
-					| dec:d dec_plus:dStar {: RESULT = new NODE_LIST<AstDec>(d, dStar); :}
+dec_plus	::=		dec:d {: RESULT = new NodeList<AstDec>(d, null); :}
+					| dec:d dec_plus:dStar {: RESULT = new NodeList<AstDec>(d, dStar); :}
 					;
 
 dec			::=		varDec:v {: RESULT = v; :}
@@ -154,9 +154,9 @@ dec			::=		varDec:v {: RESULT = v; :}
 					| arrayTypedef:a {: RESULT = a; :}
 					;
 
-type		::=		TYPE_INT {: RESULT = new AstType(PRIMITIVE.INT.label); :}
-					| TYPE_STRING {: RESULT = new AstType(PRIMITIVE.STRING.label); :}
-					| TYPE_VOID {: RESULT = new AstType(PRIMITIVE.VOID.label); :}
+type		::=		TYPE_INT {: RESULT = new AstType(Primitive.INT.label); :}
+					| TYPE_STRING {: RESULT = new AstType(Primitive.STRING.label); :}
+					| TYPE_VOID {: RESULT = new AstType(Primitive.VOID.label); :}
 					| ID:name {: RESULT = new AstType(name); :}
 					;
 
@@ -175,7 +175,7 @@ funcDec		::=		type:t ID:id LPAREN RPAREN LBRACE stmtList:stmtStar RBRACE
 					    {: RESULT = new AstFuncdec(
 					        tFunc,
 					        idFunc,
-					        new NODE_LIST<AstFuncParam>(new AstFuncParam(tParam, idParam), paramStar), /* yup */
+					        new NodeList<AstFuncParam>(new AstFuncParam(tParam, idParam), paramStar), /* yup */
 					        stmtStar);
 					        :}
 					;
@@ -183,7 +183,7 @@ funcDec		::=		type:t ID:id LPAREN RPAREN LBRACE stmtList:stmtStar RBRACE
 // can be empty or more type-id pairs
 c_t_id_star	::=		/* empty */ {: RESULT = null; :}
                     | COMMA type:t ID:id c_t_id_star:star
-                        {: RESULT = new NODE_LIST<AstFuncParam>(new AstFuncParam(t, id), star); :} /* yeah */
+                        {: RESULT = new NodeList<AstFuncParam>(new AstFuncParam(t, id), star); :} /* yeah */
                     ;
 
 // equivalent to (stmt)+
@@ -200,8 +200,8 @@ cField		::=		varDec:v {: RESULT = new AstCfieldVar(v); :}
 					| funcDec:f {: RESULT = new AstCfieldFunc(f); :}
 					;
 
-cFieldList ::= cField:f cFieldList:star {: RESULT = new NODE_LIST<AstCfield>(f, star); :}
-                   | cField:f {: RESULT = new NODE_LIST<AstCfield>(f, null); :}
+cFieldList ::= cField:f cFieldList:star {: RESULT = new NodeList<AstCfield>(f, star); :}
+                   | cField:f {: RESULT = new NodeList<AstCfield>(f, null); :}
                    ;
 
 arrayTypedef	::=	ARRAY ID:id EQ type:type LBRACK RBRACK SEMICOLON {: RESULT = new AstDecArraytypedef(id, type); :}
@@ -219,9 +219,9 @@ exp			::=		var:v {: RESULT = new AstExpVar(v); :}
 					| ID:funcName LPAREN RPAREN {: RESULT = new AstExpFunc(funcName); :}
 					| var:v DOT ID:funcName LPAREN RPAREN {: RESULT = new AstExpMethod(v, funcName); :}
 					| ID:funcName LPAREN exp:e c_exp_star:eStar RPAREN
-					    {: RESULT = new AstExpFunc(funcName, new NODE_LIST<AstExp>(e, eStar)); :}
+					    {: RESULT = new AstExpFunc(funcName, new NodeList<AstExp>(e, eStar)); :}
 					| var:v DOT ID:funcName LPAREN exp:e c_exp_star:eStar RPAREN
-					    {: RESULT = new AstExpMethod(v, funcName, new NODE_LIST<AstExp>(e, eStar)); :}
+					    {: RESULT = new AstExpMethod(v, funcName, new NodeList<AstExp>(e, eStar)); :}
 					| INT:i	{: RESULT = new AstExpInt(i);          :}
 					| MINUS INT:i {: RESULT = new AstExpInt(-i);          :}
 					| NIL {: RESULT = new AstExpNil(); :}
@@ -230,7 +230,7 @@ exp			::=		var:v {: RESULT = new AstExpVar(v); :}
 
 // equivalent to (COMMA exp)+
 c_exp_star	::=		/* empty */ {: RESULT = null; :}
-                    | COMMA exp:e c_exp_star:eStar {: RESULT = new NODE_LIST<AstExp>(e, eStar); :}
+                    | COMMA exp:e c_exp_star:eStar {: RESULT = new NodeList<AstExp>(e, eStar); :}
                     ;
 
 var			::=		ID:name								{: RESULT = new AstVarSimple(name);       :}
@@ -248,9 +248,9 @@ stmt		::=		varDec:d {: RESULT = new AstStmtVardec(d); :}
 					| WHILE LPAREN exp:cond RPAREN LBRACE stmtList:body RBRACE	{: RESULT = new AstStmtWhile(cond,body); :}
 					| ID:id LPAREN RPAREN SEMICOLON {: RESULT = new AstStmtFunc(id); :}
 					| ID:id LPAREN exp:e c_exp_star:eStar RPAREN SEMICOLON
-					    {: RESULT = new AstStmtFunc( id, new NODE_LIST<AstExp>(e, eStar)); :}
+					    {: RESULT = new AstStmtFunc( id, new NodeList<AstExp>(e, eStar)); :}
 					| var:v DOT ID:field LPAREN RPAREN SEMICOLON {: RESULT = new AstStmtMethod(v, field); :}
 					| var:v DOT ID:field LPAREN exp:e c_exp_star:eStar RPAREN SEMICOLON
-					    {: RESULT = new AstStmtMethod(v, field, new NODE_LIST<AstExp>(e, eStar)); :}
+					    {: RESULT = new AstStmtMethod(v, field, new NodeList<AstExp>(e, eStar)); :}
 					;
 
