@@ -53,7 +53,7 @@ public class Main{
 //			/*************************/
 //			/* [6] Print the AST ... */
 //			/*************************/
-//			ast.PrintMe();
+			ast.PrintMe();
 
 			/*************************/
 			/* [7] Close output file */
@@ -63,7 +63,7 @@ public class Main{
 //			/*************************************/
 //			/* [8] Finalize AST GRAPHIZ DOT file */
 //			/*************************************/
-//			AST_GRAPHVIZ.getInstance().finalizeFile();
+			AstGraphviz.getInstance().finalizeFile();
 		}
 		catch (Exception e) {
 			e.printStackTrace();

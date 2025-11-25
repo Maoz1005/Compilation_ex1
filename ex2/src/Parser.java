@@ -388,8 +388,7 @@ public class Parser extends java_cup.runtime.lr_parser {
 		System.out.print(error_location);
 		System.out.print(":");
 		System.out.print(lexer.getTokenStartPosition());
-		System.out.print("] ");		
-		System.exit(0);
+		System.out.print("] ");
 
 		Main.writeStatusToFile(error_location, "ERROR", Main.outputFileName);
 		System.out.println("Exiting due to SYNTAX error");

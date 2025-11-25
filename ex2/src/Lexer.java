@@ -863,7 +863,7 @@ class Lexer implements java_cup.runtime.Scanner {
                             String numberAsString = yytext();
                             number = Integer.parseInt(numberAsString);
                             if ((0 <= number) && (number <= MAX_NUMBER))
-                                return symbol(TokenNames.INT, new Integer(yytext()));
+                                return symbol(TokenNames.INT, Integer.valueOf(yytext()));
                             else
                                 return symbol(TokenNames.ERROR);
                           }
