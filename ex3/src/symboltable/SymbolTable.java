@@ -7,6 +7,7 @@ package symboltable;
 /* GENERAL IMPORTS */
 /*******************/
 import java.io.PrintWriter;
+import java.util.List;
 
 /*******************/
 /* PROJECT IMPORTS */
@@ -43,6 +44,12 @@ public class SymbolTable
 		return 12;
 	}
 
+	private final int GLOBALSCOPE = 0;
+	private Type expectedReturnType;
+	private int scopeCounter = GLOBALSCOPE; // for each scope we enter, this increments. for each scope exited, this decrements.
+	public TypeClass currentClass; // for searching for inherited fields inside subclass methods
+
+
 	/****************************************************************************/
 	/* Enter a variable, function, class type or array type to the symbol table */
 	/****************************************************************************/
@@ -56,23 +63,25 @@ public class SymbolTable
 		/******************************************************************************/
 		/* [2] Extract what will eventually be the next entry in the hashed position  */
 		/*     NOTE: this entry can very well be null, but the behaviour is identical */
+		/* will be the next entry of the new entry we are inserting */
 		/******************************************************************************/
 		SymbolTableEntry next = table[hashValue];
 	
 		/**************************************************************************/
 		/* [3] Prepare a new symbol table entry with name, type, next and prevtop */
 		/**************************************************************************/
-		SymbolTableEntry e = new SymbolTableEntry(name,t,hashValue,next,top, topIndex++);
+		SymbolTableEntry newEntry = new SymbolTableEntry(name, t, hashValue, next, top, topIndex++, scopeCounter); // [3] Prepare a new symbol table entry with name, type, next and prevtop
+
 
 		/**********************************************/
 		/* [4] Update the top of the symbol table ... */
 		/**********************************************/
-		top = e;
+		top = newEntry;
 		
 		/****************************************/
 		/* [5] Enter the new entry to the table */
 		/****************************************/
-		table[hashValue] = e;
+		table[hashValue] = newEntry;
 		
 		/**************************/
 		/* [6] Print Symbol Table */
@@ -83,19 +92,88 @@ public class SymbolTable
 	/***********************************************/
 	/* Find the inner-most scope element with name */
 	/***********************************************/
-	public Type find(String name)
-	{
-		SymbolTableEntry e;
-				
-		for (e = table[hash(name)]; e != null; e = e.next)
-		{
-			if (name.equals(e.name))
-			{
-				return e.type;
+//	public Type find(String name)
+//	{
+//		SymbolTableEntry e;
+//
+//		for (e = table[hash(name)]; e != null; e = e.next)
+//		{
+//			if (name.equals(e.name))
+//			{
+//				return e.type;
+//			}
+//		}
+//
+//		return null;
+//	}
+
+	public Type find(String name) {
+		SymbolTableEntry found = findEntryInTable(name);
+
+		// If we're in a class and either nothing was found yet
+		// or the found symbol is from the global scope,
+		// try resolving as a member of the current class.
+		if (currentClass != null && (found == null || found.scope == GLOBALSCOPE)) {
+			Type memberType = findMemberType(currentClass, name);
+			if (memberType != null) {
+				return memberType;
 			}
 		}
-		
+
+		if (found != null) {
+			return found.type;
+		}
+
 		return null;
+	}
+
+	/* scan table to find the first occurrence on name */
+	private SymbolTableEntry findEntryInTable(String name){
+		SymbolTableEntry current_entry = table[hash(name)];
+		while (current_entry != null) {
+			if (name.equals(current_entry.name)) {
+				break;
+			}
+			current_entry = current_entry.next;
+		}
+
+		return current_entry;
+	}
+
+	/**
+	 * Returns the type of attribute, or null on failure.
+	 */
+	public Type findMemberType(TypeClass classType, String memberName) {
+		TypeClass currentClass = classType;
+
+		while (currentClass != null) {
+			TypeClassMemberDec desiredMember = findMemberInClass(currentClass, memberName);
+			if (desiredMember != null) {
+				return desiredMember.t;
+			}
+			currentClass = currentClass.father;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Finds a member of a class
+	 */
+	private TypeClassMemberDec findMemberInClass(TypeClass currentClass, String memberName) {
+		List<TypeClassMemberDec> dataMembers = currentClass.dataMembers;
+		for (TypeClassMemberDec member : dataMembers) {
+			if (member.name.equals(memberName)) {
+				return member;
+			}
+		}
+		return null;
+	}
+
+	public boolean isInCurrentScope(String name){
+		SymbolTableEntry entry = findEntryInTable(name);
+		if (entry == null) return false;
+		return entry.scope == scopeCounter;
 	}
 
 	/***************************************************************************/
@@ -112,6 +190,8 @@ public class SymbolTable
 		enter(
 			"SCOPE-BOUNDARY",
 			new TypeForScopeBoundaries("NONE"));
+
+		scopeCounter++;
 
 		/*********************************************/
 		/* Print the symbol table after every change */
