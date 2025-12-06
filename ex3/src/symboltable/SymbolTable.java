@@ -70,7 +70,7 @@ public class SymbolTable
 		/**************************************************************************/
 		/* [3] Prepare a new symbol table entry with name, type, next and prevtop */
 		/**************************************************************************/
-		SymbolTableEntry newEntry = new SymbolTableEntry(name, t, hashValue, next, top, topIndex++, scopeCounter); // [3] Prepare a new symbol table entry with name, type, next and prevtop
+		SymbolTableEntry newEntry = new SymbolTableEntry(name, t, hashValue, next, top, topIndex++, scopeCounter);
 
 		/**********************************************/
 		/* [4] Update the top of the symbol table ... */
@@ -337,12 +337,12 @@ public class SymbolTable
 			instance = new SymbolTable();
 
 			/*****************************************/
-			/* [1] Enter primitive types int, string */
+			/* [1] Enter primitive types' int, string */
 			/*****************************************/
 			instance.enter("int",   TypeInt.getInstance());
 			instance.enter("string", TypeString.getInstance());
 			instance.enter("void", TypeVoid.getInstance()); /* [2] How should we handle void ??? */
-			instance.enter("nil", TypeVoid.getInstance());
+			instance.enter("nil", TypeNil.getInstance());
 
 			/*************************************/
 			/* [2] How should we handle void ??? */
